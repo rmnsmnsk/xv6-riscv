@@ -1,3 +1,4 @@
+//kalloc.c
 // Physical memory allocator, for user processes,
 // kernel stacks, page-table pages,
 // and pipe buffers. Allocates whole 4096-byte pages.
@@ -8,6 +9,7 @@
 #include "spinlock.h"
 #include "riscv.h"
 #include "defs.h"
+#include "proc.h"
 
 void freerange(void *pa_start, void *pa_end);
 
@@ -60,6 +62,8 @@ kfree(void *pa)
   r->next = kmem.freelist;
   kmem.freelist = r;
   release(&kmem.lock);
+
+  printf("[KFREE] pid=%d addr=%p\n", myproc()->pid, pa); // отладочный вывод
 }
 
 // Allocate one 4096-byte page of physical memory.
@@ -78,5 +82,8 @@ kalloc(void)
 
   if (r)
     memset((char *)r, 5, PGSIZE); // fill with junk
+
+  if (r)
+    printf("[KALLOC] pid=%d addr=%p\n", myproc()->pid, r); // отладочный вывод
   return (void *)r;
 }
