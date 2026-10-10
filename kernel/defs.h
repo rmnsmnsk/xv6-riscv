@@ -190,3 +190,7 @@ void            mutexclose(struct sleeplock *);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
+
+// mutex.c
+int  mutexalloc(struct file **);
+void mutexclose(struct sleeplock *);
