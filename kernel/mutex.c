@@ -27,6 +27,5 @@ int mutexalloc(struct file **f) {
 
 void mutexclose(struct sleeplock *sl) {
     kfree(sl);
-    sl = 0;
     printk("mutex was closed\n");
 }
