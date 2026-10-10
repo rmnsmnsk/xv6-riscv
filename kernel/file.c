@@ -62,23 +62,38 @@ fileclose(struct file *f)
   struct file ff;
 
   acquire(&ftable.lock);
+
+  if (f->type == FD_MUTEX && f->mutex->locked && f->mutex->pid == myproc()->pid) { // если мьютекс захвачен закрывающим процессом
+    f->mutex->locked = 0;
+    f->mutex->pid = 0;
+  }
+
   if (f->ref < 1)
     panic("fileclose");
-  if (--f->ref > 0) {
+
+  f->ref--;
+
+  if (f->ref > 0) {
     release(&ftable.lock);
     return;
   }
-  ff = *f;
-  f->ref = 0;
-  f->type = FD_NONE;
-  release(&ftable.lock);
 
-  if (ff.type == FD_PIPE) {
-    pipeclose(ff.pipe, ff.writable);
-  } else if (ff.type == FD_INODE || ff.type == FD_DEVICE) {
-    begin_op();
-    iput(ff.ip);
-    end_op();
+  if (f->ref == 0) { // если закрывается последняя ссылка на файл
+    ff = *f;
+    f->ref = 0;
+    f->type = FD_NONE;
+
+    release(&ftable.lock);
+  
+    if (ff.type == FD_PIPE) {
+      pipeclose(ff.pipe, ff.writable);
+    } else if (ff.type == FD_INODE || ff.type == FD_DEVICE) {
+      begin_op();
+      iput(ff.ip);
+      end_op();
+    } else if (ff.type == FD_MUTEX) {
+      mutexclose(ff.mutex);
+    }
   }
 }
 
@@ -106,6 +121,9 @@ filestat(struct file *f, uint64 addr)
 int
 fileread(struct file *f, uint64 addr, int n)
 {
+  if (f->type == FD_MUTEX && f->mutex->locked) // возврат ошибки при попытке чтения в мьютекс 
+    return -1;
+
   int r = 0;
 
   if (f->readable == 0 || n < 0)
@@ -134,6 +152,9 @@ fileread(struct file *f, uint64 addr, int n)
 int
 filewrite(struct file *f, uint64 addr, int n)
 {
+  if (f->type == FD_MUTEX && f->mutex->locked) // возврат ошибки при попытке записи в мьютекс 
+    return -1;
+
   int r, ret = 0;
 
   if (f->writable == 0 || n < 0)
