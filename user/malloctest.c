@@ -9,12 +9,18 @@ main(void)
   void *c;
 
   a = malloc(20);
+  vmprint();
   b = malloc(100);
-  c = malloc(500);
+  vmprint();
+  c = malloc(8000);
+  vmprint();
 
   free(a);
+  vmprint();
   free(b);
+  vmprint();
   free(c);
+  vmprint();
 
   exit(0);
 }
