@@ -44,7 +44,6 @@ pseudoread(int user_dst, uint64 dst, int n, int minor)
     return n;
 
   case DEV_NULLSTAT:
-    // Счётчик имеет размер ровно 8 байт.
     if (n != (int)sizeof(uint64))
       return -1;
 
@@ -61,7 +60,6 @@ pseudoread(int user_dst, uint64 dst, int n, int minor)
     return sizeof(count);
 
   default:
-    // Такого minor у этого драйвера нет.
     return -1;
   }
 }
@@ -69,7 +67,6 @@ pseudoread(int user_dst, uint64 dst, int n, int minor)
 static int
 pseudowrite(int user_src, uint64 src, int n, int minor)
 {
-  // Эти устройства не используют содержимое записываемого буфера.
   (void)user_src;
   (void)src;
 
@@ -78,15 +75,12 @@ pseudowrite(int user_src, uint64 src, int n, int minor)
 
   switch (minor) {
   case DEV_NULL:
-    // Данные отброшены, но запись считается успешной.
     return n;
 
   case DEV_ZERO:
-    // Запись в zero запрещена.
     return -1;
 
   case DEV_NULLSTAT:
-    // Данные отбрасываем, но считаем их количество.
     acquire(&nullstat.lock);
     nullstat.count += n;
     release(&nullstat.lock);
