@@ -20,6 +20,18 @@ main(void)
     mknod("console", CONSOLE, 0);
     open("console", O_RDWR);
   }
+  if (open("null", O_RDWR) < 0) {
+    mknod("null", PSEUDO, DEV_NULL);
+    open("null", O_RDWR);
+  }
+  if (open("zero", O_RDWR) < 0) {
+    mknod("zero", PSEUDO, DEV_ZERO);
+    open("zero", O_RDWR);
+  }
+  if (open("nullstat", O_RDWR) < 0) {
+    mknod("nullstat", PSEUDO, DEV_NULLSTAT);
+    open("nullstat", O_RDWR);
+  }
   dup(0); // stdout
   dup(0); // stderr
 

@@ -40,6 +40,6 @@ extern struct devsw devsw[];
 
 #define CONSOLE 1
 #define PSEUDO 2
-#define DEV_NULL 3
-#define DEV_ZERO 4
-#define DEV_NULLSTAT 5
+#define DEV_NULL 0
+#define DEV_ZERO 1
+#define DEV_NULLSTAT 2
