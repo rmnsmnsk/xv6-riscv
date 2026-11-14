@@ -28,6 +28,7 @@ main()
     iinit();            // inode table
     fileinit();         // file table
     pseudoinit();       // null, zero and nullstat
+    rtcinit(); 
     virtio_disk_init(); // emulated hard disk
     userinit();         // first user process
 

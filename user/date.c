@@ -21,11 +21,8 @@ int main(int argc, char *argv[]) {
     }
     close(fd);
 
-    uint64 total_sec = time_ns / 1000000000;
-    uint64 ns = time_ns % 1000000000;
-
-    uint64 days = total_sec / 86400;
-    uint64 rem_sec = total_sec % 86400;
+    uint64 days = (time_ns / 1000000000) / 86400;
+    uint64 rem_sec = (time_ns / 1000000000) % 86400;
 
     int hour = rem_sec / 3600;
     int min = (rem_sec % 3600) / 60;
@@ -54,7 +51,14 @@ int main(int argc, char *argv[]) {
     int day = days + 1;
     month += 1;
 
-    printf("%02d.%02d.%04d %02d:%02d:%02d.%09d\n", day, month, year, hour, min, sec, (int)ns);
+    printf("%s%d.%s%d.%d %s%d:%s%d:%s%d.%d\n",
+       day < 10 ? "0" : "", day,
+       month < 10 ? "0" : "", month,
+       year,
+       hour < 10 ? "0" : "", hour,
+       min < 10 ? "0" : "", min,
+       sec < 10 ? "0" : "", sec,
+       (int)(time_ns % 1000000000));
 
     exit(0);
 }

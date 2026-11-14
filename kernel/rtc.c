@@ -1,10 +1,20 @@
 #include "types.h"
-#include "riscv.h"
-#include "defs.h"
+#include "param.h"
 #include "memlayout.h"
+#include "riscv.h"
+#include "spinlock.h"
+#include "sleeplock.h"
+#include "fs.h"
+#include "file.h"
+#include "defs.h"
 
 #define RTC_LOW  0x00
 #define RTC_HIGH 0x04
+
+void rtcinit(void) {
+    devsw[RTC].read = rtcread;
+    devsw[RTC].write = rtcwrite;
+}
 
 int
 rtcread(int user_dst, uint64 dst, int n, int minor)
