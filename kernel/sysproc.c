@@ -110,3 +110,59 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+static void
+line_print(int level)
+{
+  for (int i = 0; i < level; i++)
+    printk(".........");
+}
+
+static void
+flags_print(uint64 page)
+{
+  char flags[8];
+
+  flags[0] = (page & PTE_R) ? 'R' : '_';
+  flags[1] = (page & PTE_W) ? 'W' : '_';
+  flags[2] = (page & PTE_X) ? 'X' : '_';
+  flags[3] = (page & PTE_U) ? 'U' : '_';
+  flags[4] = (page & PTE_G) ? 'G' : '_';
+  flags[5] = (page & PTE_A) ? 'A' : '_';
+  flags[6] = (page & PTE_D) ? 'D' : '_';
+  flags[7] = '\0';
+
+  printk("%s", flags);
+}
+
+static void
+vmprint_walk(pagetable_t pagetable, int level)
+{
+  for (int i = 0; i < 512; i++) {
+    uint64 page = pagetable[i];
+    
+    if (page & PTE_V) { // страница используется, а не пустая
+      line_print(level);
+      printk("0x%lx -> %p ", (uint64)i, (void *)PTE2PA(page));
+      flags_print(page);
+      printk("\n");
+      
+      if ((page & (PTE_R | PTE_W | PTE_X)) == 0) // ссылка на таблицу следующего уровня, а не данные
+        vmprint_walk((pagetable_t)PTE2PA(page), level + 1);
+    }
+  }
+}
+
+uint64
+sys_vmprint(void) 
+{
+  struct proc *p = myproc();
+  if (p == 0)
+    return -1;
+
+  printk("PAGETABLE %p\n", (void *)p->pagetable);
+  
+  vmprint_walk(p->pagetable, 0);
+
+  return 0;  
+}
