@@ -11,6 +11,19 @@
 
 char *argv[] = {"sh", 0};
 
+static void
+create_device(char *name, int major, int minor)
+{
+  int fd = open(name, O_RDONLY);
+
+  if (fd >= 0) {
+    close(fd);
+    return;
+  }
+
+  mknod(name, major, minor);
+}
+
 int
 main(void)
 {
@@ -20,24 +33,13 @@ main(void)
     mknod("console", CONSOLE, 0);
     open("console", O_RDWR);
   }
-  if (open("null", O_RDWR) < 0) {
-    mknod("null", PSEUDO, DEV_NULL);
-    open("null", O_RDWR);
-  }
-  if (open("zero", O_RDWR) < 0) {
-    mknod("zero", PSEUDO, DEV_ZERO);
-    open("zero", O_RDWR);
-  }
-  if (open("nullstat", O_RDWR) < 0) {
-    mknod("nullstat", PSEUDO, DEV_NULLSTAT);
-    open("nullstat", O_RDWR);
-  }
-  if (open("rtc", O_RDWR) < 0) {
-    mknod("rtc", RTC, 0);
-    open("rtc", O_RDWR);
-  }
   dup(0); // stdout
   dup(0); // stderr
+
+  create_device("null", PSEUDO, DEV_NULL);
+  create_device("zero", PSEUDO, DEV_ZERO);
+  create_device("nullstat", PSEUDO, DEV_NULLSTAT);
+  create_device("rtc", RTC, 0);
 
   for (;;) {
     printf("init: starting sh\n");
