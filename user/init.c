@@ -11,6 +11,19 @@
 
 char *argv[] = {"sh", 0};
 
+static void
+create_device(char *name, int major, int minor)
+{
+  int fd = open(name, O_RDONLY);
+
+  if (fd >= 0) {
+    close(fd);
+    return;
+  }
+
+  mknod(name, major, minor);
+}
+
 int
 main(void)
 {
@@ -22,6 +35,11 @@ main(void)
   }
   dup(0); // stdout
   dup(0); // stderr
+
+  create_device("null", PSEUDO, DEV_NULL);
+  create_device("zero", PSEUDO, DEV_ZERO);
+  create_device("nullstat", PSEUDO, DEV_NULLSTAT);
+  create_device("rtc", RTC, 0);
 
   for (;;) {
     printf("init: starting sh\n");

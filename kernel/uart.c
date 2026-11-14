@@ -38,6 +38,7 @@
 #define LSR_RX_READY    (1 << 0) // input is waiting to be read from RHR
 #define LSR_TX_IDLE     (1 << 5) // THR can accept another character to send
 
+
 // for sending threads to serialize their writes
 static struct sleeplock tx_lock;
 static int tx_chan; // &tx_chan is the "wait channel"

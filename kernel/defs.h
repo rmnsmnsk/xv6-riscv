@@ -35,6 +35,9 @@ int             fileread(struct file*, uint64, int n);
 int             filestat(struct file*, uint64 addr);
 int             filewrite(struct file*, uint64, int n);
 
+// pseudo.c
+void            pseudoinit(void);
+
 // fs.c
 void            fsinit(int);
 int             dirlink(struct inode*, char*, uint);
@@ -181,6 +184,11 @@ void            plic_complete(int);
 void            virtio_disk_init(void);
 void            virtio_disk_rw(struct buf *, int);
 void            virtio_disk_intr(void);
+
+// rtc.c
+void            rtcinit(void);
+int             rtcread(int, uint64, int, int);
+int             rtcwrite(int, uint64, int, int);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
