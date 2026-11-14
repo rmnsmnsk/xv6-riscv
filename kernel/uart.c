@@ -37,7 +37,6 @@
 #define LSR             5        // line status register
 #define LSR_RX_READY    (1 << 0) // input is waiting to be read from RHR
 #define LSR_TX_IDLE     (1 << 5) // THR can accept another character to send
-#define Reg(reg) ((volatile unsigned char *)(UART0 + (reg)))
 
 
 // for sending threads to serialize their writes
