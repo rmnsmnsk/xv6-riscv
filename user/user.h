@@ -49,3 +49,8 @@ void printf(const char *, ...) __attribute__((format(printf, 1, 2)));
 // umalloc.c
 void *malloc(uint);
 void free(void *);
+void malloc_debug(int);
+
+// krmalloc.c
+void *kr_malloc(uint);
+void kr_free(void *);

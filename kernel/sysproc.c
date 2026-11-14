@@ -111,15 +111,14 @@ sys_uptime(void)
   return xticks;
 }
 
-void 
+static void
 line_print(int level)
 {
   for (int i = 0; i < level; i++)
     printk(".........");
-  printk(" ");
 }
 
-void 
+static void
 flags_print(uint64 page)
 {
   char flags[8];
@@ -136,7 +135,7 @@ flags_print(uint64 page)
   printk("%s", flags);
 }
 
-void 
+static void
 vmprint_walk(pagetable_t pagetable, int level)
 {
   for (int i = 0; i < 512; i++) {
@@ -144,7 +143,7 @@ vmprint_walk(pagetable_t pagetable, int level)
     
     if (page & PTE_V) { // страница используется, а не пустая
       line_print(level);
-      printk("0x%lx: 0x%lx 0x%lx ", (uint64)i, page, PTE2PA(page));
+      printk("0x%lx -> %p ", (uint64)i, (void *)PTE2PA(page));
       flags_print(page);
       printk("\n");
       
@@ -161,9 +160,9 @@ sys_vmprint(void)
   if (p == 0)
     return -1;
 
-  printk("PAGETABLE 0x%lx\n", (uint64)p->pagetable);
+  printk("PAGETABLE %p\n", (void *)p->pagetable);
   
-  vmprint_walk(p->pagetable, 1);
+  vmprint_walk(p->pagetable, 0);
 
   return 0;  
 }

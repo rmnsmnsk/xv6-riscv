@@ -120,6 +120,11 @@ $U/_forktest: $U/forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
 	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
 
+$U/_krtest: $U/krtest.o $U/krmalloc.o $(ULIB)
+	$(LD) $(LDFLAGS) -T $U/user.ld -o $U/_krtest $U/krtest.o $U/krmalloc.o $(ULIB)
+	$(OBJDUMP) -S $U/_krtest > $U/krtest.asm
+	$(OBJDUMP) -t $U/_krtest | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $U/krtest.sym
+
 mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 	gcc -Wno-unknown-attributes -I. -o mkfs/mkfs mkfs/mkfs.c
 
@@ -150,6 +155,7 @@ UPROGS=\
 	$U/_forphan\
 	$U/_dorphan\
 	$U/_sync\
+	$U/_krtest\
 	$U/_malloctest\
 	$U/_vmprint\
 

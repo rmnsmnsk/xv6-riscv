@@ -18,7 +18,7 @@ struct block {
 static Block *bins[NBINS];
 static char *heap_start;
 static char *heap_end;
-static int debug = 1;
+static int debug;
 
 static int
 bin_number(uint size)
@@ -179,14 +179,53 @@ malloc(uint nbytes)
 void
 free(void *ptr)
 {
-  Block *b;
+  Block *b, *p, *prev = 0, *next;
+  uint release, remain;
 
   if (!ptr)
     return;
 
   b = (Block *)ptr - 1;
+  b->free = 1;
+  b->requested = 0;
 
-  add_free(b);
+  next = (Block *)((char *)b + b->size);
+  if ((char *)next < heap_end && next->free) {
+    remove_free(next);
+    b->size += next->size;
+  }
+
+  for (p = (Block *)heap_start; p && (char *)p < (char *)b;
+       p = (Block *)((char *)p + p->size))
+    prev = p;
+
+  if (prev && prev->free) {
+    remove_free(prev);
+    prev->size += b->size;
+    b = prev;
+  }
+
+  if ((char *)b + b->size == heap_end) {
+    release = b->size / PGSIZE * PGSIZE;
+    remain = b->size - release;
+
+    if (remain && remain < sizeof(Block) + 8) {
+      release -= PGSIZE;
+      remain += PGSIZE;
+    }
+
+    if (release && sbrk(-(int)release) != SBRK_ERROR) {
+      heap_end -= release;
+      if (remain) {
+        b->size = remain;
+        add_free(b);
+      }
+    } else {
+      add_free(b);
+    }
+  } else {
+    add_free(b);
+  }
 
   if (debug)
     print_heap();
