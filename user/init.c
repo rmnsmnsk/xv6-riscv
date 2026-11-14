@@ -32,6 +32,10 @@ main(void)
     mknod("nullstat", PSEUDO, DEV_NULLSTAT);
     open("nullstat", O_RDWR);
   }
+  if (open("rtc", O_RDWR) < 0) {
+    mknod("rtc", RTC, 0);
+    open("rtc", O_RDWR);
+  }
   dup(0); // stdout
   dup(0); // stderr
 

@@ -43,3 +43,4 @@ extern struct devsw devsw[];
 #define DEV_NULL 0
 #define DEV_ZERO 1
 #define DEV_NULLSTAT 2
+#define RTC 3
